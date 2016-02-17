@@ -130,8 +130,8 @@ public class MainActivity extends AppCompatActivity {
 
         counter++;
 
-        // only update all 10 times
-        if (counter % 10 == 0) {
+        // only update all 10 times on automated fuzzing
+        if (!isFuzzing || (counter % 10 == 0)) {
             textCounter.post(new Runnable() {
                 @Override public void run() {
                     textCounter.setText(getString(R.string.counter_message, counter));

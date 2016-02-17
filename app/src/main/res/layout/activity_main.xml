@@ -28,14 +28,15 @@
     tools:context="alexander.martinz.fingerprintfuzzer.MainActivity">
 
     <TextView
-        android:id="@+id/status"
+        android:id="@+id/counter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/counter"
+        android:id="@+id/status"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:minLines="5" />
 
     <Button
         android:id="@+id/start_stop"
