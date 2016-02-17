@@ -32,4 +32,5 @@
     <string name="ready_to_rock">Ready to rock!\n\nYou can now manually start and stop or authenticate to start automated fuzzing!</string>
 
     <string name="fuzzing">Fuzzing right now, please leave me alone :(</string>
+    <string name="delay_fuzzing">Delay automated fuzzing</string>
 </resources>

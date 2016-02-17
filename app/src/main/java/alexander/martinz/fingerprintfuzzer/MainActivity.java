@@ -22,9 +22,13 @@ import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int DELAY_DEFAULT = 750;
+
     private FingerPrinter fingerPrinter;
 
     private int counter;
@@ -32,10 +36,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSetup;
 
     private FuzzerTask fuzzerTask;
+    private int fuzzerDelay;
     private boolean isFuzzing;
 
     private TextView textStatus;
     private TextView textCounter;
+
+    private Switch swFuzzerDelay;
     private Button btnStartStop;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +55,16 @@ public class MainActivity extends AppCompatActivity {
         textStatus = (TextView) findViewById(R.id.status);
         textCounter = (TextView) findViewById(R.id.counter);
         btnStartStop = (Button) findViewById(R.id.start_stop);
+        swFuzzerDelay = (Switch) findViewById(R.id.sw_delay_fuzzer);
 
         textCounter.setText(getString(R.string.counter_message, counter));
+
+        swFuzzerDelay.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                fuzzerDelay = isChecked ? DELAY_DEFAULT : 0;
+            }
+        });
+
         btnStartStop.setEnabled(false);
         btnStartStop.setText(R.string.start);
         btnStartStop.setOnClickListener(new View.OnClickListener() {
@@ -131,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         counter++;
 
         // only update all 10 times on automated fuzzing
-        if (!isFuzzing || (counter % 10 == 0)) {
+        if (!isFuzzing || (fuzzerDelay == 0 && (counter % 10 == 0))) {
             textCounter.post(new Runnable() {
                 @Override public void run() {
                     textCounter.setText(getString(R.string.counter_message, counter));
@@ -147,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
         isFuzzing = true;
 
-        fuzzerTask = new FuzzerTask();
+        fuzzerTask = new FuzzerTask(fuzzerDelay);
         fuzzerTask.execute();
     }
 
@@ -160,10 +175,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private final class FuzzerTask extends AsyncTask<Void, Void, Void> {
+        private int fuzzerDelay;
+
+        public FuzzerTask(int fuzzerDelay) {
+            this.fuzzerDelay = fuzzerDelay;
+        }
+
+        private void sleepIfNeeded() {
+            if (fuzzerDelay <= 0) {
+                return;
+            }
+            try {
+                Thread.sleep(fuzzerDelay);
+            } catch (Exception ignored) { }
+        }
+
         @Override protected Void doInBackground(Void... params) {
             while (isFuzzing) {
                 start();
+                sleepIfNeeded();
                 stop();
+                sleepIfNeeded();
             }
             return null;
         }
